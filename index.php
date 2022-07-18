@@ -11,13 +11,24 @@ require('db/connect.php');
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inserindo dados no DB</title>
+    <style>
+        table{
+            border-collapse: collapse;
+            width: 90%;
+        }
+        th, td{
+            padding: 6px;
+            text-align: center;
+            border: 1px solid #ccc;
+        }
+    </style>
 </head>
-<body>
+<body style="font-family: sans-serif;">
     <h1>Aula Inserindo Dados.</h1>
     <form method="POST">
         <input type="text" name="name" placeholder="Digite seu nome" required autofocus>
         <input type="email" name="email" placeholder="Digite seu email" required>
-        <button type="submit" name="salve">Enviar</button>
+        <button type="submit" name="salve">Salvar</button>
     </form>
     <br>
     <?php
@@ -66,5 +77,46 @@ require('db/connect.php');
 
         }
     ?>
+
+    <?php
+        //SELECIONAR DADOS DA TABELA
+        $sql = $pdo->prepare("SELECT * FROM clientes");
+        $sql->execute();
+        $datas = $sql->fetchAll();
+
+        /* //SELECIONAR DADOS DA TABELA COM FILTRAGEM
+        $sql = $pdo->prepare("SELECT * FROM clientes WHERE email = ?");
+        $email = 'ricardo@test.com';
+        $sql->execute(array($email));
+        $datas = $sql->fetchAll(); */
+
+    ?>
+
+    <?php
+
+        if(count($datas) > 0){
+
+            echo "<br><br><table>
+                <tr>
+                    <th>CÓDIGO</th>
+                    <th>NOME</th>
+                    <th>EMAIL</th>
+                </tr>";
+            
+            foreach($datas as $key => $value){
+                echo "<tr>
+                        <td>".$value['id']."</td>
+                        <td>".$value['nome']."</td>
+                        <td>".$value['email']."</td>
+                    </tr>";
+            }
+
+            echo "</table>";
+        }else {
+            echo "Nenhum cliente cadastrado!";
+        }
+
+    ?>
+    
 </body>
 </html>
