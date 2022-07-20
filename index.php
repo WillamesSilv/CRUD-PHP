@@ -33,7 +33,7 @@ require('db/connect.php');
     </form>
 
     <!-- Modal -->
-    <div class="modal fade" id="atualizarCliente" tabindex="-1" aria-labelledby="atualizarModalLabel" aria-hidden="true">
+    <div class="modal fade modal-lg" id="atualizarCliente" tabindex="-1" aria-labelledby="atualizarModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
         <div class="modal-header">
@@ -42,7 +42,7 @@ require('db/connect.php');
         </div>
         <div class="modal-body">
             <form method="POST">
-                <input type="text" name="id-editado" id="id-editado" placeholder="ID" required autofocus class="form-control form-control-sm mt-3">
+                <input type="hidden" name="id-editado" id="id-editado" placeholder="ID" required autofocus class="form-control form-control-sm mt-3">
                 <input type="text" name="name-editado" id="name-editado" placeholder="Digite seu nome" required autofocus class="form-control form-control-sm mt-3">
                 <input type="email" name="email-editado" id="email-editado" placeholder="Digite seu email" required class="form-control form-control-sm mt-3">
                 <button type="submit" id="atualizar" name="atualizar" class="btn btn-primary btn-sm mt-3">Atualizar</button>
@@ -54,7 +54,31 @@ require('db/connect.php');
         </div>
     </div>
     </div>
+
+    <div class="modal fade" id="deletarCliente" tabindex="-1" aria-labelledby="deletarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="deletarModalLabel">Deletar Cliente</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form method="POST">
+                <input type="hidden" name="id-del" id="id-del" placeholder="ID" required autofocus class="form-control form-control-sm mt-3">
+                <input type="hidden" name="name-del" id="name-del" placeholder="Digite seu nome" required autofocus class="form-control form-control-sm mt-3">
+                <input type="hidden" name="email-del" id="email-del" placeholder="Digite seu email" required class="form-control form-control-sm mt-3">
+                <p>Deseja excluir o registro do cliente <b><span id='cliente'></span></b>?</p>
+                <button type="submit" id="deletar" name="deletar" class="btn btn-primary btn-sm mt-3">Deletar</button>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Desistir</button>
+        </div>
+        </div>
+    </div>
+    </div>
     <br>
+
     <?php
         //INSERINDO DADO NO DB DE MANEIRA SIMPLES (VÚLNERÁVEL)
         /* $sql = $pdo->prepare("INSERT INTO clientes VALUES (
@@ -143,6 +167,24 @@ require('db/connect.php');
     ?>
 
     <?php
+
+        if(isset($_POST['deletar']) && isset($_POST['name-del']) && isset($_POST['email-del']) && isset($_POST['id-del'])){
+
+            $id = cleanDataPost($_POST['id-del']);
+            $name = cleanDataPost($_POST['name-del']);
+            $email = cleanDataPost($_POST['email-del']);
+
+            //COMANDO PARA DELETAR
+            $sql = $pdo->prepare('DELETE FROM clientes WHERE id=? AND nome=? AND email=?');
+            $sql->execute(array($id, $name, $email));
+
+            echo "Deletado com sucesso!";
+
+        }
+    
+    ?>
+
+    <?php
         //SELECIONAR DADOS DA TABELA
         $sql = $pdo->prepare("SELECT * FROM clientes");
         $sql->execute();
@@ -173,7 +215,7 @@ require('db/connect.php');
                         <td>".$value['id']."</td>
                         <td>".$value['nome']."</td>
                         <td>".$value['email']."</td>
-                        <td><a href='#' id='atualizaCliente' data-bs-toggle='modal' data-id='".$value['id']."' data-nome='".$value['nome']."' data-email='".$value['email']."' data-bs-target='#atualizarCliente'>Atualizar<a/></td>
+                        <td><a href='#' id='atualizaCliente' data-bs-toggle='modal' data-id='".$value['id']."' data-nome='".$value['nome']."' data-email='".$value['email']."' data-bs-target='#atualizarCliente'>Atualizar<a/> | <a href='#' id='deletaCliente' data-bs-toggle='modal' data-id='".$value['id']."' data-nome='".$value['nome']."' data-email='".$value['email']."' data-bs-target='#deletarCliente'>Excluir<a/></td>
                     </tr>";
             }
 
@@ -187,7 +229,8 @@ require('db/connect.php');
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
     <script>
 
-        let data = document.querySelectorAll('#atualizaCliente')
+        let dataForUpdate = document.querySelectorAll('#atualizaCliente')
+        let dataForDelete = document.querySelectorAll('#deletaCliente')
 
         function changeData(id, name, email){
 
@@ -195,21 +238,32 @@ require('db/connect.php');
             document.getElementById('id-editado').value = id
             document.getElementById('email-editado').value = email
 
+            document.getElementById('name-del').value = name
+            document.getElementById('id-del').value = id
+            document.getElementById('email-del').value = email
+
         }
 
-        data.forEach((btn, index) => {
-            
-            btn.addEventListener('click', () => {
+        function changeDataClient(client){
 
-                let {id, nome, email} = btn.dataset
+            document.getElementById('cliente').innerText = client
+        }
+
+        function getData(data){
+            data.forEach((btn, index) => {
                 
-                changeData(id, nome, email)
+                btn.addEventListener('click', () => {
+
+                    let {id, nome, email} = btn.dataset
+                    
+                    changeData(id, nome, email)
+                    changeDataClient(nome)
+                })
             })
-        })
+        }
 
-        
-
-        // console.log(data)
+        getData(dataForUpdate)
+        getData(dataForDelete)
 
     </script>
 </body>
