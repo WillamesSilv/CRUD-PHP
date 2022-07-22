@@ -168,6 +168,7 @@ require('db/connect.php');
 
     <?php
 
+        //PROCESSO DE DELETAR CLIENTE
         if(isset($_POST['deletar']) && isset($_POST['name-del']) && isset($_POST['email-del']) && isset($_POST['id-del'])){
 
             $id = cleanDataPost($_POST['id-del']);
@@ -186,7 +187,7 @@ require('db/connect.php');
 
     <?php
         //SELECIONAR DADOS DA TABELA
-        $sql = $pdo->prepare("SELECT * FROM clientes");
+        $sql = $pdo->prepare("SELECT * FROM clientes ORDER BY id LIMIT 0, 5");
         $sql->execute();
         $datas = $sql->fetchAll();
 
@@ -238,9 +239,9 @@ require('db/connect.php');
             document.getElementById('id-editado').value = id
             document.getElementById('email-editado').value = email
 
-            document.getElementById('name-del').value = name
-            document.getElementById('id-del').value = id
-            document.getElementById('email-del').value = email
+            document.getElementById('name-del+.').value = name
+            document.getElementById('id-del+.').value = id
+            document.getElementById('email-del+.').value = email
 
         }
 
